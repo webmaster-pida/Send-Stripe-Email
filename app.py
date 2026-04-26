@@ -13,7 +13,7 @@ EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')   # La contraseña de aplicaci
 EMAIL_RECEIVER = os.environ.get('EMAIL_RECEIVER')   # A quién le llega el aviso (puede ser tu correo)
 
 def send_email(customer_email, subscription_id):
-    """Función para enviar el correo vía SMTP de Gmail"""
+    """Función para enviar el correo vía SMTP de Gmail a múltiples destinatarios"""
     msg = EmailMessage()
     msg.set_content(f"¡Buenas noticias! Tienes una nueva suscripción.\n\n"
                     f"Email del cliente: {customer_email}\n"
@@ -21,7 +21,12 @@ def send_email(customer_email, subscription_id):
 
     msg['Subject'] = '🚀 Nueva Suscripción en Stripe'
     msg['From'] = EMAIL_SENDER
-    msg['To'] = EMAIL_RECEIVER
+    
+    # Tomamos la variable de entorno, la separamos por comas y limpiamos espacios vacíos
+    lista_correos = [email.strip() for email in EMAIL_RECEIVER.split(',')]
+    
+    # Asignamos la lista de correos al destinatario
+    msg['To'] = lista_correos
 
     try:
         # Conexión al servidor SMTP de Google
@@ -29,7 +34,7 @@ def send_email(customer_email, subscription_id):
         server.login(EMAIL_SENDER, EMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
-        print("Correo enviado exitosamente.")
+        print(f"Correo enviado exitosamente a: {lista_correos}")
     except Exception as e:
         print(f"Error enviando correo: {e}")
 
